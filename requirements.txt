@@ -5,3 +5,5 @@ torchvision
 opencv3
 yacs
 tqdm
+pillow=6.1.0
+flask
