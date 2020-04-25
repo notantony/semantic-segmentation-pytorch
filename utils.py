@@ -4,6 +4,7 @@ import logging
 import re
 import functools
 import fnmatch
+import base64
 import numpy as np
 
 

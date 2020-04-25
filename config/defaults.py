@@ -95,3 +95,14 @@ _C.TEST.batch_size = 1
 _C.TEST.checkpoint = "epoch_20.pth"
 # folder to output visualization results
 _C.TEST.result = "./"
+
+# -----------------------------------------------------------------------------
+# Runtime settings, can be reinitilized via args
+# -----------------------------------------------------------------------------
+_C.RUNTIME = CN()
+# gpu id
+_C.RUNTIME.gpu = 0
+# maximum amount of images queued for processing
+_C.RUNTIME.queue_capactiy = 500
+# time waiting in queue before leaving, in seconds
+_C.RUNTIME.timeout = 20
