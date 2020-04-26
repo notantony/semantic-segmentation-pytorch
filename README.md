@@ -42,13 +42,17 @@ If image is missing required class, `400` request code will be returned.
 
 # Running
 
-Run with `run.sh`: \
-`chmod +x run.sh` \
-`./run.sh`
+Run with `run.sh`:
+```
+chmod +x run.sh
+./run.sh
+```
 
-Encode images into base64 with `b64.sh` (creates `tmp.txt`): \
-`chmod +x b64.sh` \
-`./b64.sh <image_path>`
+Encode images into base64 with `b64.sh` (creates `tmp.txt`):
+```
+chmod +x b64.sh
+./b64.sh <image_path>
+```
 
 # Reference
 
