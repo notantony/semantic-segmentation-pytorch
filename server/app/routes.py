@@ -54,6 +54,6 @@ def segmentation():
         response = {}
         with open(result_path, "rb") as result_file:
             result_data = result_file.read()
-        response["image"] = str(base64.encodebytes(result_data))
+        response["image"] = base64.encodebytes(result_data).decode("utf-8").replace("\n", "")
         
         return jsonify(response)
