@@ -35,13 +35,19 @@ def segmentation():
             traceback.print_exc()
             return bad_request(repr(e))
 
-        try: # TODO: Unsupported class
+        if name not in server.app.processor.from_names:
+            return bad_request("Unexpected name: `{}`".format(name))
+
+        try:
             result_image = server.app.processor.get_segment(image_path, name)
         except Exception as e:
             traceback.print_exc()
             return server_error(repr(e))
         
-        result_image = result_image.crop(result_image.getbbox()) # TODO: Missing class
+        bbox = result_image.getbbox()
+        if bbox is None:
+            return bad_request("Image doesn't contain class `{}`".format(name))
+        result_image = result_image.crop(bbox)
         result_path = os.path.join(tmpdir, "result.png")
         result_image.save(result_path)
         

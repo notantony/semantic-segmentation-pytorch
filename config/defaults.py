@@ -25,6 +25,8 @@ _C.DATASET.padding_constant = 8
 _C.DATASET.segm_downsampling_rate = 8
 # randomly horizontally flip images when train/test
 _C.DATASET.random_flip = True
+# path to dataset objects' names
+_C.DATASET.names_path = "data/object150_info.csv"
 
 # -----------------------------------------------------------------------------
 # Model

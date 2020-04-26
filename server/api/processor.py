@@ -21,35 +21,6 @@ from lib.nn import user_scattered_collate, async_copy_to
 from lib.utils import as_numpy
 from PIL import Image
 from tqdm import tqdm
-# from config import cfg
-
-colors = loadmat('data/color150.mat')['colors']
-names = {}
-from_names = {}
-with open('data/object150_info.csv') as f:
-    reader = csv.reader(f)
-    next(reader)
-    for row in reader:
-        names[int(row[0])] = row[5].split(";")[0]
-        for name in row[5].split(";"):
-            from_names[name] = int(row[0])
-
-
-def visualize_result(pred):
-    # print predictions in descending order
-    pred = np.int32(pred)
-    pixs = pred.size
-    uniques, counts = np.unique(pred, return_counts=True)
-
-    for idx in np.argsort(counts)[::-1]:
-        name = names[uniques[idx] + 1]
-        ratio = counts[idx] / pixs * 100
-        if ratio > 0.1:
-            print("  {}: {:.2f}%".format(name, ratio))
-
-    pred_color = colorEncode(pred, colors).astype(np.uint8)
-    
-    return pred_color
 
 
 WORKER_QUEUE_TIMEOUT = 1.0
@@ -70,6 +41,15 @@ class SegmentationProcessor():
         self.worker = threading.Thread(target=self._worker)
         self.segmentation_module = self._prepare_module()
         self.shutdown = False
+        self.names = {}
+        self.from_names = {}
+        with open(cfg.DATASET.names_path) as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                self.names[int(row[0])] = row[5].split(";")[0]
+                for name in row[5].split(";"):
+                    self.from_names[name] = int(row[0])
 
 
     def __enter__(self):
@@ -202,7 +182,7 @@ class SegmentationProcessor():
             self._make_loader(image_path),
             self.cfg.RUNTIME.gpu)
 
-        selected = pred != (from_names[target_class] - 1)
+        selected = pred != (self.from_names[target_class] - 1)
         transparency = np.array(selected, dtype=np.int8).reshape([orig.shape[0], orig.shape[1], 1]) + 255
         
         selected_rgbmask = np.repeat(selected[:, :, np.newaxis], 3, axis=2)
