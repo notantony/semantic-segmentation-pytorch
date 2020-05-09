@@ -3,8 +3,8 @@
 
 # API
 
-## Object detection
-Object detection via Google Cloud.
+## Single object cropping
+Cropping segment of chosen class. 
 
 #### Input:
 Address: `/segmentation`, POST \
