@@ -84,5 +84,6 @@ def colormap():
         response = {}
         response["colormap"] = base64.b64encode(colormap.tobytes()).decode("utf-8").replace("\n", "")
         response["shape"] = str(colormap.shape)
+        response["dtype"] = str(colormap.dtype)
         
         return jsonify(response)
