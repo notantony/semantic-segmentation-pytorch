@@ -5,6 +5,7 @@ import tempfile
 import server.app
 import traceback
 import flask
+import io
 
 from flask import request, jsonify
 from server.app import app
@@ -48,13 +49,11 @@ def segmentation():
         if bbox is None:
             return bad_request("Image doesn't contain class `{}`".format(name))
         result_image = result_image.crop(bbox)
-        result_path = os.path.join(tmpdir, "result.png")
-        result_image.save(result_path)
-        
+        img_stream = io.BytesIO()
+        result_image.save(img_stream, format="png")
+
         response = {}
-        with open(result_path, "rb") as result_file:
-            result_data = result_file.read()
-        response["image"] = base64.encodebytes(result_data).decode("utf-8").replace("\n", "")
+        response["image"] = base64.encodebytes(img_stream.getvalue()).decode("utf-8").replace("\n", "")
         
         return jsonify(response)
 
