@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Image and model names
-TEST_IMG=ADE_val_00001519.jpg
 MODEL_PATH=ade20k-resnet50dilated-ppm_deepsup
 RESULT_PATH=./
 
@@ -23,9 +22,8 @@ if [ ! -e $TEST_IMG ]; then
 fi
 
 # Inference
-python3 -u test.py \
-  --imgs $TEST_IMG \
-  --cfg config/ade20k-resnet50dilated-ppm_deepsup.yaml \
-  DIR $MODEL_PATH \
-  TEST.result ./ \
-  TEST.checkpoint epoch_20.pth
+python3 ./main.py \
+    --cfg config/ade20k-resnet50dilated-ppm_deepsup.yaml \
+    DIR $MODEL_PATH \
+    TEST.result ./ \
+    TEST.checkpoint epoch_20.pth
