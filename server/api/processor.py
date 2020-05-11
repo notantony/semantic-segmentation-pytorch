@@ -6,6 +6,7 @@ import queue
 import threading
 import sys
 import warnings
+import traceback
 from distutils.version import LooseVersion
 # Numerical libs
 import numpy as np
@@ -28,8 +29,9 @@ WORKER_QUEUE_TIMEOUT = 1.0
 
 class SegmentationProcessor():
     class Payload():
-        def __init__(self, data):
+        def __init__(self, task, data):
             self.cv = threading.Condition()
+            self.task = task
             self.data = data
             self.result = None
             self.rejected = False
@@ -50,6 +52,7 @@ class SegmentationProcessor():
                 self.names[int(row[0])] = row[5].split(";")[0]
                 for name in row[5].split(";"):
                     self.from_names[name] = int(row[0])
+        self.colors = loadmat(cfg.DATASET.master_table)['colors']
 
 
     def __enter__(self):
@@ -58,6 +61,7 @@ class SegmentationProcessor():
 
 
     def __exit__(self, type, value, traceback):
+        print("Server is shutting down")
         self.queue.put(None)
         self.shutdown = True
         self.worker.join()
@@ -82,28 +86,15 @@ class SegmentationProcessor():
                     if self.shutdown:
                         payload.rejected = True
                     else:
-                        payload.result = self._get_segment(*payload.data)
+                        try:
+                            payload.result = payload.task(*payload.data)
+                        except Exception as e:
+                            warnings.warn("Exception occurred during evaluation: {}".format(e), RuntimeWarning)
+                            traceback.print_exc()
+                            payload.rejected = True
                     
                     payload.cv.notify()
                 self.queue.task_done()
-
-
-    @staticmethod
-    def visualize_class(pred, orig):
-        # print predictions in descending order
-        pred = np.int32(pred)
-        pixs = pred.size
-        uniques, counts = np.unique(pred, return_counts=True)
-
-        for idx in np.argsort(counts)[::-1]:
-            name = names[uniques[idx] + 1]
-            ratio = counts[idx] / pixs * 100
-            if ratio > 0.1:
-                print("  {}: {:.2f}%".format(name, ratio))
-
-        pred_color = colorEncode(pred, colors).astype(np.uint8)
-        
-        return pred_color
 
 
     def run_segmentation(self, segmentation_module, loader, gpu):
@@ -193,11 +184,22 @@ class SegmentationProcessor():
         return Image.fromarray(result, mode='RGBA')
 
 
-    def get_segment(self, image_path, target_class):
+    def _get_colormap(self, image_path):
+        _orig, pred = self.run_segmentation(self.segmentation_module,
+            self._make_loader(image_path),
+            self.cfg.RUNTIME.gpu)
+
+        pred = np.int32(pred)
+
+        pred_color = colorEncode(pred, self.colors).astype(np.uint8)
+        
+        return pred_color
+
+
+    def send_task(self, payload):
         if self.shutdown:
             raise RuntimeError("Server is shutting down")
 
-        payload = self.Payload((image_path, target_class))
         with payload.cv:
             # throws queue.Full
             self.queue.put(payload, timeout=self.cfg.RUNTIME.timeout)
@@ -211,3 +213,12 @@ class SegmentationProcessor():
 
         return payload.result
 
+
+    def get_colormap(self, image_path):
+        payload = self.Payload(self._get_colormap, (image_path,))
+        return self.send_task(payload)
+
+
+    def get_segment(self, image_path, target_class):
+        payload = self.Payload(self._get_segment, (image_path, target_class))
+        return self.send_task(payload)

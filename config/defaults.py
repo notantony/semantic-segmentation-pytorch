@@ -27,6 +27,8 @@ _C.DATASET.segm_downsampling_rate = 8
 _C.DATASET.random_flip = True
 # path to dataset objects' names
 _C.DATASET.names_path = "data/object150_info.csv"
+# path to master_table
+_C.DATASET.master_table = 'data/color150.mat' #TODO: Create into csv
 
 # -----------------------------------------------------------------------------
 # Model
