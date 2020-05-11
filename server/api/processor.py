@@ -188,12 +188,8 @@ class SegmentationProcessor():
         _orig, pred = self.run_segmentation(self.segmentation_module,
             self._make_loader(image_path),
             self.cfg.RUNTIME.gpu)
-
-        pred = np.int32(pred)
-
-        pred_color = colorEncode(pred, self.colors).astype(np.uint8)
         
-        return pred_color
+        return np.int16(pred)
 
 
     def send_task(self, payload):
