@@ -13,9 +13,9 @@ Address: `/segmentation`, POST \
 MIMEs: `applcation/json`
 
 Parameters: \
-`data`: base64-encoded image \
-`type`: image extension \
-`name`: requested class name
+`data`: base64-encoded image. \
+`type`: image extension. \
+`name`: requested class name.
 
 #### Output:
 JSON: \
@@ -51,12 +51,12 @@ Address: `/colormap`, POST \
 MIMEs: `applcation/json`
 
 Parameters: \
-`data`: base64-encoded image \
-`type`: image extension
+`data`: base64-encoded image. \
+`type`: image extension.
 
 #### Output:
 JSON: \
-`colormap`: base64-encoded bytes representation of numpy array containing classes of each pixel. Serialized with [numpy.tobytes()](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tobytes.html), can be desrialized with [numpy.frombuffer](https://docs.scipy.org/doc/numpy/reference/generated/numpy.frombuffer.html) \
+`colormap`: base64-encoded bytes representation of numpy array containing classes of each pixel. Serialized with [numpy.tobytes()](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tobytes.html), can be desrialized with [numpy.frombuffer()](https://docs.scipy.org/doc/numpy/reference/generated/numpy.frombuffer.html). \
 `shape`: shape of the array, equals to original image shape. \
 `dtype`: dtype of the array, currently always equals to `int16`.
 
