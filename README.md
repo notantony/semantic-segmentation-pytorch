@@ -3,6 +3,8 @@
 
 # API
 
+[Classes table](https://docs.google.com/spreadsheets/d/1QXMxMCEpFli6m4f9IZxZiyCgDPId5fGCN_pHVDVeNPc/edit#gid=0)
+
 ## Single object cropping
 Cropping segment of chosen class. 
 
@@ -36,6 +38,45 @@ If image is missing required class, `400` request code will be returned.
   ```json
   {
       "image" : "iVBORw0KGgoAAAANSUhEUgAAA+EAAAI1CAYAAA..."
+  }
+  ```
+</details>
+
+
+## Segmentation map constructing
+Run segmentation on requested image.  
+
+#### Input:
+Address: `/colormap`, POST \
+MIMEs: `applcation/json`
+
+Parameters: \
+`data`: base64-encoded image \
+`type`: image extension
+
+#### Output:
+JSON: \
+`colormap`: base64-encoded bytes representation of numpy array containing classes of each pixel. Serialized with [numpy.tobytes()](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tobytes.html), can be desrialized with [numpy.frombuffer](https://docs.scipy.org/doc/numpy/reference/generated/numpy.frombuffer.html) \
+`shape`: shape of the array, equals to original image shape. \
+`dtype`: dtype of the array, currently always equals to `int16`.
+
+<details>
+  <summary> <b>Sample: </b> </summary> 
+
+  Request JSON:
+  ```json
+  {
+      "type" : "jpeg",
+      "data" : "/9j/4AAQSkZJRgABAQEASABIAAD//gATQ3JlYXRlZCB3a..."
+  }
+  ```
+  
+  Response:
+  ```json
+  {
+      "colormap": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...",
+      "dtype": "int16",
+      "shape": "(588, 1000)"
   }
   ```
 </details>
