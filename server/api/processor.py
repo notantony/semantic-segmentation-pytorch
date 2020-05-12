@@ -168,28 +168,12 @@ class SegmentationProcessor():
         return loader
 
 
-    def _get_segment(self, image_path, target_class):
+    def _get_colormap(self, image_path):
         orig, pred = self.run_segmentation(self.segmentation_module,
             self._make_loader(image_path),
             self.cfg.RUNTIME.gpu)
-
-        selected = pred != (self.from_names[target_class] - 1)
-        transparency = np.array(selected, dtype=np.int8).reshape([orig.shape[0], orig.shape[1], 1]) + 255
         
-        selected_rgbmask = np.repeat(selected[:, :, np.newaxis], 3, axis=2)
-        orig = np.multiply(orig, ~selected_rgbmask)
-        
-        result = np.int8(np.append(orig, transparency, axis=2))
-
-        return Image.fromarray(result, mode='RGBA')
-
-
-    def _get_colormap(self, image_path):
-        _orig, pred = self.run_segmentation(self.segmentation_module,
-            self._make_loader(image_path),
-            self.cfg.RUNTIME.gpu)
-        
-        return np.int16(pred)
+        return orig, pred
 
 
     def send_task(self, payload):
@@ -212,9 +196,21 @@ class SegmentationProcessor():
 
     def get_colormap(self, image_path):
         payload = self.Payload(self._get_colormap, (image_path,))
-        return self.send_task(payload)
+        _orig, pred = self.send_task(payload)
+        return np.int16(pred)
 
 
     def get_segment(self, image_path, target_class):
-        payload = self.Payload(self._get_segment, (image_path, target_class))
-        return self.send_task(payload)
+        payload = self.Payload(self._get_colormap, (image_path,))
+        
+        orig, pred = self.send_task(payload)
+
+        selected = pred != (self.from_names[target_class] - 1)
+        transparency = np.array(selected, dtype=np.int8).reshape([orig.shape[0], orig.shape[1], 1]) + 255
+        
+        selected_rgbmask = np.repeat(selected[:, :, np.newaxis], 3, axis=2)
+        orig = np.multiply(orig, ~selected_rgbmask)
+        
+        result = np.int8(np.append(orig, transparency, axis=2))
+
+        return Image.fromarray(result, mode='RGBA')
