@@ -32,6 +32,8 @@ def segmentation():
             with open(image_path, "wb") as image_file:
                 image_file.write(data)
             name = json_data["name"]
+            blur_radius = json_data.get("blur_radius", None)
+            border_extension = json_data.get("border_extension", None)
         except Exception as e:
             traceback.print_exc()
             return bad_request(repr(e))
@@ -40,7 +42,7 @@ def segmentation():
             return bad_request("Unexpected name: `{}`".format(name))
 
         try:
-            result_image = server.app.processor.get_segment(image_path, name)
+            result_image = server.app.processor.get_segment(image_path, name, blur_radius, border_extension)
         except Exception as e:
             traceback.print_exc()
             return server_error(repr(e))

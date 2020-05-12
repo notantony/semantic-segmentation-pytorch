@@ -6,7 +6,7 @@
 [Classes table](https://docs.google.com/spreadsheets/d/1QXMxMCEpFli6m4f9IZxZiyCgDPId5fGCN_pHVDVeNPc/edit#gid=0)
 
 ## Single object cropping
-Cropping segment of chosen class. 
+Crop segment of requested class. Border extention and Gaussian blur can be applied for smoothing borders.
 
 #### Input:
 Address: `/segmentation`, POST \
@@ -15,7 +15,9 @@ MIMEs: `applcation/json`
 Parameters: \
 `data`: base64-encoded image. \
 `type`: image extension. \
-`name`: requested class name.
+`name`: requested class name. \
+`blur_radius`: optional, blur radius. \
+`border_extension`: optional, amount of pixels to extend the border.
 
 #### Output:
 JSON: \

@@ -20,7 +20,7 @@ from models import ModelBuilder, SegmentationModule
 from utils import colorEncode, find_recursive, setup_logger
 from lib.nn import user_scattered_collate, async_copy_to
 from lib.utils import as_numpy
-from PIL import Image
+from PIL import Image, ImageFilter
 from tqdm import tqdm
 
 
@@ -200,17 +200,20 @@ class SegmentationProcessor():
         return np.int16(pred)
 
 
-    def get_segment(self, image_path, target_class):
+    def get_segment(self, image_path, target_class, blur_radius=None, border_extension=None):
         payload = self.Payload(self._get_colormap, (image_path,))
         
         orig, pred = self.send_task(payload)
 
-        selected = pred != (self.from_names[target_class] - 1)
-        transparency = np.array(selected, dtype=np.int8).reshape([orig.shape[0], orig.shape[1], 1]) + 255
-        
-        selected_rgbmask = np.repeat(selected[:, :, np.newaxis], 3, axis=2)
-        orig = np.multiply(orig, ~selected_rgbmask)
-        
-        result = np.int8(np.append(orig, transparency, axis=2))
+        selected = ~(pred != (self.from_names[target_class] - 1))
 
-        return Image.fromarray(result, mode='RGBA')
+        orig = Image.fromarray(np.int8(orig), mode='RGB')
+        mask = Image.fromarray(np.int8(selected * 255), mode='L') 
+
+        if border_extension is not None:
+            mask = mask.filter(ImageFilter.MaxFilter(border_extension * 2 + 1))
+
+        if blur_radius is not None:
+            mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
+
+        return orig
