@@ -216,4 +216,5 @@ class SegmentationProcessor():
         if blur_radius is not None:
             mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
 
+        orig.putalpha(mask)
         return orig
