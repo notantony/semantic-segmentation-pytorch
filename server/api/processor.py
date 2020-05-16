@@ -211,7 +211,7 @@ class SegmentationProcessor():
         mask = Image.fromarray(np.int8(selected * 255), mode='L') 
 
         if border_extension is not None:
-            mask = mask.filter(ImageFilter.MaxFilter(border_extension * 2 + 1))
+            mask = mask.filter(ImageFilter.MaxFilter(int(border_extension) * 2 + 1))
 
         if blur_radius is not None:
             mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
