@@ -63,18 +63,22 @@ def segmentation():
 @app.route('/colormap', methods=['POST'])
 def colormap():
     with tempfile.TemporaryDirectory("crop-session") as tmpdir:
-        if request.mimetype != "application/json":
+        if request.mimetype == "application/json":
+            try:
+                json_data = json.loads(request.get_data())
+                image_data = base64.decodebytes(json_data["data"].encode())
+                extension = json_data.get("type", "")
+            except Exception as e:
+                traceback.print_exc()
+                return bad_request(repr(e))
+        elif request.mimetype == "image/jpeg" or request.mimetype == "image/png":
+            image_data = request.get_data()
+        else:
             return bad_request("Unsupported MIME type, use `application/json`")
-        try:
-            json_data = json.loads(request.get_data())
-            data = base64.decodebytes(json_data["data"].encode())
-            extension = json_data.get("type", "")
-            image_path = os.path.join(tmpdir, "image.{}".format(extension))
-            with open(image_path, "wb") as image_file:
-                image_file.write(data)
-        except Exception as e:
-            traceback.print_exc()
-            return bad_request(repr(e))
+
+        image_path = os.path.join(tmpdir, "image.{}".format(extension))
+        with open(image_path, "wb") as image_file:
+            image_file.write(image_data)
 
         try:
             colormap = server.app.processor.get_colormap(image_path)

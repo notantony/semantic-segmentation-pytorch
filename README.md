@@ -50,9 +50,9 @@ Run segmentation on requested image.
 
 #### Input:
 Address: `/colormap`, POST \
-MIMEs: `applcation/json`
+MIMEs: `applcation/json`, `image/jpeg`, `image/png`
 
-Parameters: \
+Parameters when Json: \
 `data`: base64-encoded image. \
 `type`: optional, image extension. Can be omitted for most of extensions.
 
