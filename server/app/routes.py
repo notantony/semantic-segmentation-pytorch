@@ -27,7 +27,7 @@ def segmentation():
         try:
             json_data = json.loads(request.get_data())
             data = base64.decodebytes(json_data["data"].encode())
-            extension = json_data["type"]
+            extension = json_data.get("type", "")
             image_path = os.path.join(tmpdir, "image.{}".format(extension))
             with open(image_path, "wb") as image_file:
                 image_file.write(data)
@@ -68,7 +68,7 @@ def colormap():
         try:
             json_data = json.loads(request.get_data())
             data = base64.decodebytes(json_data["data"].encode())
-            extension = json_data["type"]
+            extension = json_data.get("type", "")
             image_path = os.path.join(tmpdir, "image.{}".format(extension))
             with open(image_path, "wb") as image_file:
                 image_file.write(data)

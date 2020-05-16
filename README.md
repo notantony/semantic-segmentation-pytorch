@@ -14,8 +14,8 @@ MIMEs: `applcation/json`
 
 Parameters: \
 `data`: base64-encoded image. \
-`type`: image extension. \
 `name`: requested class name. \
+`type`: optional, image extension. Can be omitted for most of extensions. \
 `blur_radius`: optional, blur radius. \
 `border_extension`: optional, amount of pixels to extend the border.
 
@@ -54,7 +54,7 @@ MIMEs: `applcation/json`
 
 Parameters: \
 `data`: base64-encoded image. \
-`type`: image extension.
+`type`: optional, image extension. Can be omitted for most of extensions.
 
 #### Output:
 JSON: \
