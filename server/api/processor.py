@@ -218,3 +218,16 @@ class SegmentationProcessor():
 
         orig.putalpha(mask)
         return orig
+
+    def debug_img(self, orig, pred):
+        pred = np.int32(pred)
+        pixs = pred.size
+        uniques, counts = np.unique(pred, return_counts=True)
+        for idx in np.argsort(counts)[::-1]:
+            name = self.names[uniques[idx] + 1]
+            ratio = counts[idx] / pixs * 100
+            if ratio > 0.1:
+                print("  {}: {:.2f}%".format(name, ratio))
+        pred_color = colorEncode(pred, self.colors).astype(np.uint8)
+        im_vis = np.concatenate((orig, pred_color), axis=1)
+        Image.fromarray(im_vis).save('tmp.png')
